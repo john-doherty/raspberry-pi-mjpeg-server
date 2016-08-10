@@ -5,12 +5,13 @@ var fs = require("fs"),
     path = require('path'),
     http = require("http"),
     util = require("util"),
+    chokidar = require('chokidar'),
     PubSub = require("pubsub-js"),
-    PiCamera = require('camerapi'),
+    PiCamera = require('./camera.js'),
     Getopt = require('node-getopt'),
     pjson = require('./package.json');
 
-getopt = new Getopt([
+var getopt = new Getopt([
     ['p', 'port', 'port number (default 8080)'],
     ['w', 'width', 'image width (default 640)'],
     ['l', 'height', 'image height (default 480)'],
@@ -38,8 +39,8 @@ if (opt.options["version"]) {
 var port = opt.options["port"] || 8080,
     width = opt.options["width"] || 640,
     height = opt.options["height"] || 480,
-    timeout = opt.options["timeout"] || 500,
-    quality = opt.options["quality"] || 85,
+    timeout = opt.options["timeout"] || 250,
+    quality = opt.options["quality"] || 75,
     tmpFolder = os.tmpdir(),
     tmpImage = pjson.name + '-image.jpg',
     localIpAddress = require('node-local-ip-address')(),
@@ -80,9 +81,9 @@ var server = http.createServer(function(req, res) {
         //
         var subscriber_token = PubSub.subscribe('MJPEG', function(msg, data) {
 
-console.log('sending image');
+            //console.log('sending image');
 
-            res.write('--' + boundary + '\r\n')
+            res.write('--' + boundaryID + '\r\n')
             res.write('Content-Type: image/jpeg\r\n');
             res.write('Content-Length: ' + data.length + '\r\n');
             res.write("\r\n");
@@ -118,51 +119,41 @@ console.log(pjson.name + " started on port " + port);
 console.log('Visit http://' + localIpAddress + ':' + port + ' to view your PI camera stream');
 console.log('');
 
-// try to access the camera stream
-try {
-    var camera = new PiCamera();
-    camera.baseFolder(tmpFolder);
-}
-catch (err){
-    console.log(err);
-    process.exit(1);
-}
 
-/**
- * @description takes a single picture from pi camera and calls send image
- */
-function captureImage() {
+var tmpFile = path.resolve(path.join(tmpFolder, tmpImage));
 
-    camera.prepare({
-        timeout : timeout, 
-        width : width,
-        height : height,
-        quality : quality
-    }).takePicture(tmpImage, sendImage);
-}
+// start watching the temp image for changes
+var watcher = chokidar.watch(tmpFile, {
+  persistent: true,
+  usePolling: true,
+  interval: 10,
+});
 
-/**
- * @description reads a jpg from disk and sends it to the client
- */
-function sendImage(file, err) {
+// hook file change events and send the modified image to the browser
+watcher.on('change', function(file) {
 
-    if (!err) {
+    //console.log('change >>> ', file);
 
-        fs.readFile(file, function(err, imageData) {
-            if (!err) {
-                PubSub.publish('MJPEG', imageData);
-            }
-            else {
-                console.log(err);
-            }
+    fs.readFile(file, function(err, imageData) {
+        if (!err) {
+            PubSub.publish('MJPEG', imageData);
+        }
+        else {
+            console.log(err);
+        }
+    });
+});
 
-            // capture the next frame
-            captureImage();
-        });
-    }
-    else {
-        console.log(err);
-    }
-}
+// setup the camera 
+var camera = new PiCamera();
 
-captureImage();
+// start image capture
+camera
+    .baseFolder(tmpFolder)
+    .thumb('0:0:0') // dont include thumbnail version
+    .timeout(9999999) // never end
+    .timelapse(timeout) // how often we should capture an image
+    .width(width)
+    .height(height)
+    .quality(quality)
+    .takePicture(tmpImage);
