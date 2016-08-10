@@ -30,11 +30,15 @@ $ sudo ./raspberry-pi-mjpeg-server -w 1280 -h 1024
 
 Open your browser and visit:
 
-  http://rpi-ip-address:port
+```
+http://rpi-ip-address:port
+```
 
 You can get direct access to the image (HTTP multipart document) via 
 
-  http://rpi-ip-address:port/image.jgg
+```
+http://rpi-ip-address:port/image.jpg
+```
 
 ## License
 
