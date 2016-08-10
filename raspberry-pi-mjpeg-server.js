@@ -149,6 +149,7 @@ var camera = new PiCamera();
 
 // start image capture
 camera
+    .nopreview()
     .baseFolder(tmpFolder)
     .thumb('0:0:0') // dont include thumbnail version
     .timeout(9999999) // never end
