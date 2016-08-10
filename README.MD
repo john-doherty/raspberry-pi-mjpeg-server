@@ -11,7 +11,7 @@ npm install raspberry-pi-mjpeg-server --save
 ## Usage
 
 ```
-$ sudo ./raspberry-pi-mjpeg-server -w 1280 -h 1024
+$ sudo ./raspberry-pi-mjpeg-server -w 1280 -l 1024
 ```
 
 ### Options

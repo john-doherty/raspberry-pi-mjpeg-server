@@ -1,6 +1,6 @@
 {
   "name": "raspberry-pi-mjpeg-server",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Node.js mjpeg streaming server to provide video like access to the Raspberry PI camera module",
   "main": "index.js",
   "scripts": {
