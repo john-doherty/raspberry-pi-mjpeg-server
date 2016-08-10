@@ -1,0 +1,18 @@
+{
+  "name": "raspberry-pi-mjpeg-server",
+  "version": "0.0.1",
+  "description": "Node.js mjpeg streaming server to provide video like access to the Raspberry PI camera module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "camerapi": "~0.1.0",
+    "node-getopt": "~0.2.3",
+    "node-local-ip-address": "0.0.3",
+    "pubsub-js": "~1.5.2"
+  },
+  "author": "John Doherty <contact@johndoherty.info> (www.johndoherty.info)",
+  "license": "ISC"
+}
