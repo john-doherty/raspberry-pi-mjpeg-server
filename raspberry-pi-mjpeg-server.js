@@ -7,43 +7,34 @@ var fs = require("fs"),
     util = require("util"),
     chokidar = require('chokidar'),
     PubSub = require("pubsub-js"),
+    localIp = require('node-local-ip-address'),
     PiCamera = require('./camera.js'),
-    Getopt = require('node-getopt'),
+    program = require('commander'),
     pjson = require('./package.json');
 
-var getopt = new Getopt([
-    ['p', 'port', 'port number (default 8080)'],
-    ['w', 'width', 'image width (default 640)'],
-    ['l', 'height', 'image height (default 480)'],
-    ['q', 'quality', 'jpeg image quality from 0 to 100 (default 85)'],
-    ['t', 'timeout', 'timeout in milliseconds between frames (default 500)'],
-    ['h', 'help', 'display this help'],
-    ['v', 'version', 'show version']
-]).bindHelp();
+program
+  .version(pjson.version)
+  .description(pjson.description)
+  .option('-p --port <n>', 'port number (default 8080)', parseInt)
+  .option('-w --width <n>', 'image width (default 640)', parseInt)
+  .option('-l --height <n>', 'image height (default 480)', parseInt)
+  .option('-q --quality <n>', 'jpeg image quality from 0 to 100 (default 85)', parseInt)
+  .option('-t --timeout <n>', 'timeout in milliseconds between frames (default 500)', parseInt)
+  .option('-v --version', 'show version')
+  .parse(process.argv);
 
-opt = getopt.parse(process.argv.slice(2));
+program.on('--help', function(){
+  console.log("Usage: " + pjson.name + " [OPTION]\n");
+});
 
-getopt.setHelp(
-    "Usage: " + pjson.name + " [OPTION]\n" +
-    "\n" +
-    "[[OPTIONS]]\n" +
-    "\n"
-);
-
-if (opt.options["version"]) {
-    console.log(pjson.name + " " + pjson.version);
-    console.log(pjson.description);
-    process.exit(0);
-}
-
-var port = opt.options["port"] || 8080,
-    width = opt.options["width"] || 640,
-    height = opt.options["height"] || 480,
-    timeout = opt.options["timeout"] || 250,
-    quality = opt.options["quality"] || 75,
+var port = program.port || 8080,
+    width = program.width || 640,
+    height = program.height || 480,
+    timeout = program.timeout || 250,
+    quality = program.quality || 75,
     tmpFolder = os.tmpdir(),
     tmpImage = pjson.name + '-image.jpg',
-    localIpAddress = require('node-local-ip-address')(),
+    localIpAddress = localIp(),
     boundaryID = "BOUNDARY";
 
 /**

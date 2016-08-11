@@ -1,6 +1,6 @@
 {
   "name": "raspberry-pi-mjpeg-server",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Node.js mjpeg streaming server to provide video like access to the Raspberry PI camera module",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "chokidar": "^1.6.0",
-    "node-getopt": "~0.2.3",
+    "commander": "^2.9.0",
     "node-local-ip-address": "0.0.3",
     "pubsub-js": "~1.5.2"
   },
