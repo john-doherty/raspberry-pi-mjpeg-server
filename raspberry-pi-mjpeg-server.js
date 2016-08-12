@@ -56,6 +56,12 @@ var server = http.createServer(function(req, res) {
         return;
     }
 
+    if (req.url === "/healthcheck") {
+        res.statusCode = 200;
+        res.end();
+        return;
+    };
+
     // for image requests, return a HTTP multipart document (stream) 
     if (req.url.match(/^\/.+\.jpg$/)) {
 
