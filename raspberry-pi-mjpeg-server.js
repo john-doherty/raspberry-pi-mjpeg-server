@@ -7,7 +7,7 @@ var fs = require("fs"),
     util = require("util"),
     chokidar = require('chokidar'),
     PubSub = require("pubsub-js"),
-    localIp = require('node-local-ip-address'),
+    localIp = require('ip'),
     PiCamera = require('./camera.js'),
     program = require('commander'),
     pjson = require('./package.json');
@@ -34,7 +34,7 @@ var port = program.port || 8080,
     quality = program.quality || 75,
     tmpFolder = os.tmpdir(),
     tmpImage = pjson.name + '-image.jpg',
-    localIpAddress = localIp(),
+    localIpAddress = localIp.address(),
     boundaryID = "BOUNDARY";
 
 /**

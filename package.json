@@ -31,7 +31,7 @@
   "dependencies": {
     "chokidar": "^1.6.0",
     "commander": "^2.9.0",
-    "node-local-ip-address": "0.0.3",
+    "ip":"^1.1.4",
     "pubsub-js": "~1.5.2"
   }
 }
