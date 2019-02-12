@@ -19,6 +19,10 @@ program
   .option('-w --width <n>', 'image width (default 640)', parseInt)
   .option('-l --height <n>', 'image height (default 480)', parseInt)
   .option('-q --quality <n>', 'jpeg image quality from 0 to 100 (default 85)', parseInt)
+  .option('-s --sharpness <n>', 'Set image sharpness (-100 - 100)', parseInt)
+  .option('-c --contrast <n>', 'Set image contrast (-100 - 100)', parseInt)
+  .option('-b --brightness <n>', 'Set image brightness (0 - 100) 0 is black, 100 is white', parseInt)
+  .option('-s --saturation <n>', 'Set image saturation (-100 - 100)', parseInt)
   .option('-t --timeout <n>', 'timeout in milliseconds between frames (default 500)', parseInt)
   .option('-v --version', 'show version')
   .parse(process.argv);
@@ -32,6 +36,10 @@ var port = program.port || 8080,
     height = program.height || 480,
     timeout = program.timeout || 250,
     quality = program.quality || 75,
+    sharpness = program.sharpness || 0,
+    contrast = program.contrast || 0,
+    brightness = program.brightness || 50,
+    saturation = program.saturation || 0,
     tmpFolder = os.tmpdir(),
     tmpImage = pjson.name + '-image.jpg',
     localIpAddress = localIp.address(),
@@ -154,4 +162,8 @@ camera
     .width(width)
     .height(height)
     .quality(quality)
+    .sharpness(sharpness)
+    .contrast(contrast)
+    .brightness(brightness)
+    .saturation(saturation)
     .takePicture(tmpImage);

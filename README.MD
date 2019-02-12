@@ -22,6 +22,10 @@ $ node raspberry-pi-mjpeg-server.js -w 1280 -l 1024
   -w, --width       image width (default 640)
   -l, --height      image height (default 480)
   -q, --quality     jpeg image quality from 0 to 100 (default 85)
+  -s, --sharpness  Set image sharpness (-100 - 100)
+  -c, --contrast   Set image contrast (-100 - 100)
+  -b, --brightness Set image brightness (0 - 100) 0 is black, 100 is white
+  -s, --saturation Set image saturation (-100 - 100)
   -t, --timeout     timeout in milliseconds between frames (default 500)
   -h, --help        display this help
   -v, --version     show version
