@@ -10,25 +10,31 @@ var fs = require("fs"),
     localIp = require('ip'),
     PiCamera = require('./camera.js'),
     program = require('commander'),
-    pjson = require('./package.json');
+    pjson = require('./package.json'),
+    process = require('process');
+
+    require('http-shutdown').extend();
+    
+// setup the camera 
+var camera = new PiCamera();
 
 program
-  .version(pjson.version)
-  .description(pjson.description)
-  .option('-p --port <n>', 'port number (default 8080)', parseInt)
-  .option('-w --width <n>', 'image width (default 640)', parseInt)
-  .option('-l --height <n>', 'image height (default 480)', parseInt)
-  .option('-q --quality <n>', 'jpeg image quality from 0 to 100 (default 85)', parseInt)
-  .option('-s --sharpness <n>', 'Set image sharpness (-100 - 100)', parseInt)
-  .option('-c --contrast <n>', 'Set image contrast (-100 - 100)', parseInt)
-  .option('-b --brightness <n>', 'Set image brightness (0 - 100) 0 is black, 100 is white', parseInt)
-  .option('-s --saturation <n>', 'Set image saturation (-100 - 100)', parseInt)
-  .option('-t --timeout <n>', 'timeout in milliseconds between frames (default 500)', parseInt)
-  .option('-v --version', 'show version')
-  .parse(process.argv);
+    .version(pjson.version)
+    .description(pjson.description)
+    .option('-p --port <n>', 'port number (default 8080)', parseInt)
+    .option('-w --width <n>', 'image width (default 640)', parseInt)
+    .option('-l --height <n>', 'image height (default 480)', parseInt)
+    .option('-q --quality <n>', 'jpeg image quality from 0 to 100 (default 85)', parseInt)
+    .option('-s --sharpness <n>', 'Set image sharpness (-100 - 100)', parseInt)
+    .option('-c --contrast <n>', 'Set image contrast (-100 - 100)', parseInt)
+    .option('-b --brightness <n>', 'Set image brightness (0 - 100) 0 is black, 100 is white', parseInt)
+    .option('-a --saturation <n>', 'Set image saturation (-100 - 100)', parseInt)
+    .option('-t --timeout <n>', 'timeout in milliseconds between frames (default 500)', parseInt)
+    .option('-v --version', 'show version')
+    .parse(process.argv);
 
-program.on('--help', function(){
-  console.log("Usage: " + pjson.name + " [OPTION]\n");
+program.on('--help', function () {
+    console.log("Usage: " + pjson.name + " [OPTION]\n");
 });
 
 var port = program.port || 8080,
@@ -48,7 +54,7 @@ var port = program.port || 8080,
 /**
  * create a server to serve out the motion jpeg images
  */
-var server = http.createServer(function(req, res) {
+var server = http.createServer(function (req, res) {
 
     // return a html page if the user accesses the server directly
     if (req.url === "/") {
@@ -84,7 +90,7 @@ var server = http.createServer(function(req, res) {
         //
         // send new frame to client
         //
-        var subscriber_token = PubSub.subscribe('MJPEG', function(msg, data) {
+        var subscriber_token = PubSub.subscribe('MJPEG', function (msg, data) {
 
             //console.log('sending image');
 
@@ -99,15 +105,15 @@ var server = http.createServer(function(req, res) {
         //
         // connection is closed when the browser terminates the request
         //
-        res.on('close', function() {
+        res.on('close', function () {
             console.log("Connection closed!");
             PubSub.unsubscribe(subscriber_token);
             res.end();
         });
     }
-});
+}).withShutdown();
 
-server.on('error', function(e) {
+server.on('error', function (e) {
     if (e.code == 'EADDRINUSE') {
         console.log('port already in use');
     } else if (e.code == "EACCES") {
@@ -115,7 +121,7 @@ server.on('error', function(e) {
     } else {
         console.log("Unknown error");
     }
-    process.exit(1);
+    exitHandler();
 });
 
 // start the server
@@ -129,17 +135,17 @@ var tmpFile = path.resolve(path.join(tmpFolder, tmpImage));
 
 // start watching the temp image for changes
 var watcher = chokidar.watch(tmpFile, {
-  persistent: true,
-  usePolling: true,
-  interval: 10,
+    persistent: true,
+    usePolling: true,
+    interval: 10,
 });
 
 // hook file change events and send the modified image to the browser
-watcher.on('change', function(file) {
+watcher.on('change', function (file) {
 
     //console.log('change >>> ', file);
 
-    fs.readFile(file, function(err, imageData) {
+    fs.readFile(file, function (err, imageData) {
         if (!err) {
             PubSub.publish('MJPEG', imageData);
         }
@@ -148,9 +154,6 @@ watcher.on('change', function(file) {
         }
     });
 });
-
-// setup the camera 
-var camera = new PiCamera();
 
 // start image capture
 camera
@@ -167,3 +170,35 @@ camera
     .brightness(brightness)
     .saturation(saturation)
     .takePicture(tmpImage);
+
+function exitHandler() {
+
+    console.log(pjson.name + " exiting");
+
+    server.close();
+
+    server.shutdown(function () {
+        console.log('MJPEG Http server shutdown completed');
+
+        camera.CloseProcess();
+
+        console.log(pjson.name + " closed");
+
+        process.exit(1);
+    });
+}
+
+process.on('uncaughtException', function (err) {
+    console.error(err);
+    exitHandler();
+});
+
+//do something when app is closing
+process.on('exit', () => {
+    exitHandler();
+});
+
+//catches ctrl+c event
+process.on('SIGINT', () => {
+    exitHandler();
+});
