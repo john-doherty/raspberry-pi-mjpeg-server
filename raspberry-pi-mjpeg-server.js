@@ -160,7 +160,7 @@ camera
     .nopreview()
     .baseFolder(tmpFolder)
     .thumb('0:0:0') // dont include thumbnail version
-    .timeout(9999999) // never end
+    .timeout(0) // never end
     .timelapse(timeout) // how often we should capture an image
     .width(width)
     .height(height)
