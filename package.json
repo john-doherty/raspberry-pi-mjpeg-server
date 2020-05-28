@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node raspberry-pi-mjpeg-server.js"
   },
   "repository": {
     "type": "git",
@@ -31,7 +31,8 @@
   "dependencies": {
     "chokidar": "^1.6.0",
     "commander": "^2.9.0",
-    "ip":"^1.1.4",
+    "http-shutdown": "^1.2.0",
+    "ip": "^1.1.4",
     "pubsub-js": "~1.5.2"
   }
 }
