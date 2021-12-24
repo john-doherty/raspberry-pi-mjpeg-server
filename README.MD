@@ -1,5 +1,5 @@
 # raspberry-pi-mjpeg-server
-[![npm](https://img.shields.io/npm/dt/raspberry-pi-mjpeg-server.svg)](https://www.npmjs.com/package/raspberry-pi-mjpeg-server) [![Linked In](https://img.shields.io/badge/Linked-In-blue.svg)](https://www.linkedin.com/in/john-i-doherty)
+[![npm](https://img.shields.io/npm/dt/raspberry-pi-mjpeg-server.svg)](https://www.npmjs.com/package/raspberry-pi-mjpeg-server) 
 
 Node.js mjpeg streaming server to provide video like access to the Raspberry PI camera module
 
